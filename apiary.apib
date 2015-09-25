@@ -1,0 +1,284 @@
+FORMAT: 1A
+HOST: https://gup.fjaus.com
+
+# FJA-US Group Underwriting Platform Reference API
+The API allows complete control over Group Underwriting Platrform opportunities, plans, and packages' life cycle. 
+It is designed to have predictable, resource-oriented URLs and to use HTTP response codes to indicate API errors. 
+The API relies on the built-in HTTP features e.g. HTTP authentication, HTTP verbs, HTTP headers, etc. 
+
+# Version
+1.1
+
+# Authentication 
+API users are required to obtain an authentication token by passing user ID and password to FJA-US IPL Security application via its own REST API. Prior to receiving  a token the user must be created and configured in IPL Security. 
+The token must be subsequently used on all API requests. The tokens have expiration time which is a configurable parameter in IPL Security.
+THe system does not allow multiple tokens per single user ID.
+
+# Authorization
+Each request to API translates the supplied token into the user's action rights, domains, and domains rights
+The user's access to resources is based on the combination of the above. For example, 
+
+
+*  An action right **.create.plan** allows its holder to establish new plans within an opportunity
+*  A domain ***business.acme*** provides access to opportunities created in domains ***business.acme***, ***business.acme.chicago***, and ***business.acme.denver*** 
+*  A domain right **.domain.readonly** attached to **business.acme.nyc** allows to view resources only
+
+
+# Base URI
+
+All requests will extend URL **https://environment/context/services/version/**
+
+# Content 
+
+## Request
+
+The request content can be submitted as either JSON or XML. The client must provide HTTP header **content-type**
+
+* application/json
+* application/xml
+
+## Response
+
+The response type can be either JSON or XML. The client must provide HTTP header **accept**
+
+* application/json
+* application/xml
+
+
+# Common Response Codes
+
+* 200 **OK** Successfully completed a retireval request
+* 201 **Created** Successfully completed a create request
+* 204 **No Content** Successfully completed an update or a delete request
+* 400 **Bad Content** Invalid content or busines logic failure 
+* 401 **Not Authenticated** A request cannot be authenticated by the server
+* 403 **Forbidden** Authorization failure 
+* 404 **Not Found** A resource is not found
+* 405 **Bad Method** An unsupported HTTP method
+* 419 **Authentication timeout** expired authentication token
+* 500 **Server Error** A runtime error on server  
+
+# Common Response Headers
+
+* **Link** URL of the affected resource. Used in conjuction with HTTP 201 
+
+
+# Group Opportunities
+
+## Opportunities Unique Identifiers Collection [/opportunities/uid?tokenKey]
+### List all opportunities identifiers [GET]
++ Parameters 
+    + tokenKey (required, string) ... authentication token
+
++ Response 200 (application/json, application/xml)
+
+        Retrieved list of opportunities' identifiers
+        <!-- Refer to XML and JSON schemas -->
+
+
+## New Opportunity [/opportunities?productType,skipValidation,tokenKey]
+### Create an opportunity [POST]
++ Parameters 
+    + productType (required, string) ... product type for the new opportunity
+    + skipValidation (optional, boolean) ... enforce or ignore product validation rules  
+    + tokenKey (required, string) ... authentication token
+
++ Request (application/json, application/xml)
+
+        <!-- Refer to XML and JSON schemas -->
+
++ Response 201
+
+    + Headers
+    
+            Link: /opportunities/uid
+
+## Existing Opportunity [/opportunities/{uid}?tokenKey,skipValidation]
+
+### Retrieve an opportunity [GET]
++ Parameters 
+    + uid (required, integer) ...  unique identfier
+    + tokenKey (required, string) ... authentication token
+
++ Response 200
+
+        <!-- Refer to XML and JSON schemas -->
+
+
+### Update Opportunity [PUT]
++ Parameters 
+    + uid (required, integer) ... unique identfier
+    + skipValidation (optional, boolean) ... enforce or ignore product validation rules 
+    + tokenKey (required, string) ... authentication token
+
++ Request (application/json, application/xml)
+
+        <!-- Refer to XML and JSON schemas -->
+
++ Response 204
+
+### Delete Opportunity [DELETE]
++ Parameters 
+    + uid (required, integer) ... unique identfier
+    + tokenKey (required, string) ... authentication token
+
++ Response 204
+
+# Group Opportuniy Plans
+
+## Plans Unique Identifiers Collection [/opportunities/{ouid}/plans/uid?tokenKey]
+### List all plans' identifiers within an opportunity [GET]
++ Parameters 
+    + ouid (required, integer) ... opportunity identifier
+    + tokenKey (required, string) ... authentication token
+
++ Response 200 (application/json, application/xml)
+
+        Retrieved list of plans' identifiers
+        <!-- Refer to XML and JSON schemas -->
+
+
+## New Plan for Opportunity [/opportunities/{ouid}/plans/?planType,skipValidation,tokenKey]
+### Create a plan [POST]
++ Parameters 
+    + ouid (required, integer) ... opportunity identifier
+    + planType (required, string) ... plan type for the new plan
+    + skipValidation (optional, boolean) ... enforce or ignore product validation rules  
+    + tokenKey (required, string) ... authentication token
+
++ Request (application/json, application/xml)
+
+        <!-- Refer to XML and JSON schemas -->
+
++ Response 201
+
+    + Headers
+    
+            Link: /opportunities/ouid/plans/puid
+
+## Existing Plan [/opportunities/{ouid}/plans/{puid}?tokenKey,skipValidation]
+### Retrieve a plan within an opportunity [GET]
++ Parameters 
+    + ouid (required, integer) ...  unique identfier of the opportunity
+    + puid (required, integer) ...  unique identfier of the plan
+    + tokenKey (required, string) ... authentication token
+
++ Response 200
+
+        <!-- Refer to XML and JSON schemas -->
+
+
+### Update Plan [PUT]
++ Parameters 
+    + ouid (required, integer) ...  unique identfier of the opportunity
+    + puid (required, integer) ...  unique identfier of the plan
+    + tokenKey (required, string) ... authentication token
+
++ Request (application/json, application/xml)
+
+        <!-- Refer to XML and JSON schemas -->
+
++ Response 204
+
+### Delete Plan [DELETE]
++ Parameters 
+    + ouid (required, integer) ...  unique identfier of the opportunity
+    + puid (required, integer) ...  unique identfier of the plan
+    + tokenKey (required, string) ... authentication token
+
++ Response 204
+
+# Group Opportuniy Packages
+
+## Packages Unique Identifiers Collection [/opportunities/{ouid}/packages/uid?tokenKey]
+### List all packages' identifiers within an opportunitiy  [GET]
++ Parameters 
+    + ouid (required, integer) ... opportunity identifier
+    + tokenKey (required, string) ... authentication token
+
++ Response 200 (application/json, application/xml)
+
+        Retrieved list of packages' identifiers
+        <!-- Refer to XML and JSON schemas -->
+
+
+## New Package for Opportunity [/opportunities/{ouid}/packages/?packageType,skipValidation,tokenKey]
+### Create a package [POST]
++ Parameters 
+    + ouid (required, integer) ... opportunity identifier
+    + packageType (required, string) ... type for the new package
+    + skipValidation (optional, boolean) ... enforce or ignore product validation rules  
+    + tokenKey (required, string) ... authentication token
+
++ Request (application/json, application/xml)
+
+        <!-- Refer to XML and JSON schemas -->
+
++ Response 201
+
+    + Headers
+    
+            Link: /opportunities/ouid/packages/puid
+
+## Existing Package [/opportunities/{ouid}/packages/{puid}?tokenKey,skipValidation]
+### Retrieve a plan within an opportunity [GET]
++ Parameters 
+    + ouid (required, integer) ...  unique identfier of the opportunity
+    + puid (required, integer) ...  unique identfier of the package
+    + tokenKey (required, string) ... authentication token
+
++ Response 200
+
+        <!-- Refer to XML and JSON schemas -->
+
+
+### Update Package [PUT]
++ Parameters 
+    + ouid (required, integer) ...  unique identfier of the opportunity
+    + puid (required, integer) ...  unique identfier of the package
+    + tokenKey (required, string) ... authentication token
+
++ Request (application/json, application/xml)
+
+        <!-- Refer to XML and JSON schemas -->
+
++ Response 204
+
+### Delete Package [DELETE]
++ Parameters 
+    + ouid (required, integer) ...  unique identfier of the opportunity
+    + puid (required, integer) ...  unique identfier of the package
+    + tokenKey (required, string) ... authentication token
+
++ Response 204
+
+## Packaged Plans Unique Identifiers Collection  [/opportunities/{ouid}/packages/{puid}/plans/uid?tokenKey]
+### List all packages' identifiers within an opportunitiy  [GET]
++ Parameters 
+    + ouid (required, integer) ... opportunity identifier
+    + puid (required, integer) ... package identifier
+    + tokenKey (required, string) ... authentication token
+
++ Response 200 (application/json, application/xml)
+
+        Retrieved list of plans' identifier within a package 
+        <!-- Refer to XML and JSON schemas -->
+
+## Manipulate Packaged Plans [/opportunities/{ouid}/packages/{pkuid}/plans/{pluid}?tokenKey]
+### Add a plan within an opportunity to a package [PUT]
++ Parameters 
+    + ouid (required, integer) ... opportunity identifier
+    + pkuid (required, integer) ... package identifier
+    + pluid (required, integer) ... plan identifier
+    + tokenKey (required, string) ... authentication token
+
++ Response 204
+
+### Remove a plan from a package [DELETE]
++ Parameters 
+    + ouid (required, integer) ... opportunity identifier
+    + pkuid (required, integer) ... package identifier
+    + pluid (required, integer) ... plan identifier
+    + tokenKey (required, string) ... authentication token
+
++ Response 204
